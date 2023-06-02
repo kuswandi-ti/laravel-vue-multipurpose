@@ -182,7 +182,7 @@
                                 <td>{{ user.name }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>{{ formatDate(user.created_at) }}</td>
-                                <td>-</td>
+                                <td>{{ user.role }}</td>
                                 <td>
                                     <router-link to="#" @click.prevent="editUser(user)"><i class="fa fa-edit"></i></router-link>&nbsp;
                                     <router-link to="#" @click.prevent="confirmUserDelete(user)"><i class="fa fa-trash text-danger"></i></router-link>
