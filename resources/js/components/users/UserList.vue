@@ -3,10 +3,13 @@
     import { Form, Field } from 'vee-validate';
     import * as yup from 'yup';
     import { debounce } from 'lodash';
+    import { Bootstrap4Pagination } from 'laravel-vue-pagination';
 
     import UserListItem from './UserListItem.vue';
 
-    const users = ref([])
+    const users = ref({
+        'data': []
+    })
     const editing = ref(false)
     const formValues = ref()
     const form = ref(null)
@@ -23,8 +26,8 @@
         email: yup.string().email().required(),
     })
     
-    const getUsers = async () => {
-        await axios.get('/api/users')
+    const getUsers = async (page = 1) => {
+        await axios.get(`/api/users?page=${page}`)
         .then((response) => {
             users.value = response.data.data
         })
@@ -166,8 +169,8 @@
                                 <th>Options</th>
                             </tr>
                         </thead>
-                        <tbody v-if="users.length > 0">
-                            <UserListItem v-for="(user, index) in users" 
+                        <tbody v-if="users.data.length > 0">
+                            <UserListItem v-for="(user, index) in users.data" 
                                 :key="user.id" 
                                 :user=user
                                 :index=index
@@ -182,9 +185,13 @@
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table>                    
                 </div>
             </div>
+            <Bootstrap4Pagination 
+                :data="users"
+                @pagination-change-page="getUsers"
+            />
         </div>
     </div>
 

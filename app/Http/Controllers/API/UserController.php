@@ -13,7 +13,7 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::latest()->get();
+            $users = User::latest()->paginate();
 
             $response = [
                 'success' => true,
@@ -160,7 +160,7 @@ class UserController extends Controller
     {
         $searchQuery = request('query');
 
-        $users = User::where('name', 'like', "%{$searchQuery}%")->get();
+        $users = User::where('name', 'like', "%{$searchQuery}%")->paginate();
 
         $response = [
             'success' => true,
