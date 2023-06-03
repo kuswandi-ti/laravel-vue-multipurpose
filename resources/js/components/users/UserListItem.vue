@@ -15,9 +15,10 @@
         }
     ])
 
-    defineProps({
+    const props = defineProps({
         user: Object,
         index: Number,
+        selectAll: Boolean
     })
 
     const changeRole = (user, role) => {
@@ -48,20 +49,25 @@
             })
         })
     }
+
+    const toggleSelection = () => {
+        emit('toggleSelection', props.user)
+    }
 </script>
 
 <template>
     <tr>
-        <td>{{ index + 1 }}</td>
+        <th class="text-center"><input type="checkbox" :checked="selectAll" @change="toggleSelection" /></th>
+        <td class="text-center">{{ index + 1 }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
-        <td>{{ formatDate(user.created_at) }}</td>
-        <td>
+        <td class="text-center">{{ formatDate(user.created_at) }}</td>
+        <td class="text-center">
             <select class="form-control" @change="changeRole(user, $event.target.value)">
                 <option v-for="role in roles" :value="role.value" :selected="(user.role == role.name)">{{ role.name }}</option>
             </select>
         </td>
-        <td>
+        <td class="text-center">
             <router-link to="#" @click.prevent="$emit('editUser', user)"><i class="fa fa-edit"></i></router-link>&nbsp;
             <router-link to="#" @click.prevent="confirmUserDelete(user)"><i class="fa fa-trash text-danger"></i></router-link>
         </td>

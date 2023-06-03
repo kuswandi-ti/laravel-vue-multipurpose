@@ -14,6 +14,8 @@
     const formValues = ref()
     const form = ref(null)
     const searchQuery = ref(null)
+    const selectedUsers = ref([])
+    const selectAll = ref(false)
 
     const createUserSchema = yup.object({
         name: yup.string().required(),
@@ -30,9 +32,13 @@
         await axios.get(`/api/users?page=${page}`)
         .then((response) => {
             users.value = response.data.data
+            selectedUsers.value = []
+            selectAll.value = false
         })
         .catch((error) => {
             errors.value = error.response.data;
+            selectedUsers.value = []
+            selectAll.value = false
         });
     }
 
@@ -58,7 +64,7 @@
     const createUser = async (values, { resetForm, setErrors }) => {
         await axios.post('/api/users', values)
         .then((response) => {                
-            users.value.unshift(response.data.data)
+            users.value.data.unshift(response.data.data)
             getUsers()
             $('#userFormModal').modal('hide')
             resetForm()
@@ -123,6 +129,45 @@
     watch(searchQuery, debounce(() => {
         search()
     }, 300))
+
+    const toggleSelection = (user) => {
+        const index = selectedUsers.value.indexOf(user.id)
+        if (index === -1) {
+            selectedUsers.value.push(user.id)
+        } else {
+            selectedUsers.value.splice(index, 1)
+        }
+    }
+
+    const selectAllUsers = () => {
+        if (selectAll.value) {
+            selectedUsers.value = users.value.data.map(user => user.id)
+        } else {
+            selectedUsers.value = []
+        }
+        console.log(selectedUsers.value)
+    }
+
+    const bulkDelete = async () => {
+        await axios.delete('/api/users', {
+            data: {
+                ids: selectedUsers.value
+            }
+        })
+        .then((response) => {
+            users.value.data = users.value.data.filter(user => !selectedUsers.value.includes(user.id))
+            selectedUsers.value = []
+            selectAll.value = false
+            getUsers()
+            Toast.fire({
+                icon: 'success',
+                title: response.data.message
+            })
+        })
+        .catch((error) => {
+            errors.value = error.response.data;
+        });
+    }
     
     onMounted(() => {
         getUsers();
@@ -151,16 +196,25 @@
             <div class="card">                
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
-                        <button @click="addUser" type="button" class="btn btn-primary mb-2">
-                            Add New User
-                        </button>
+                        <div>
+                            <button @click="addUser" type="button" class="btn btn-primary mb-2">
+                                <i class="fa fa-plus-circle mr-1"></i> Add New User
+                            </button>
+                            <button v-if="selectedUsers.length > 0" @click="bulkDelete" type="button" class="btn btn-danger mb-2 ml-2">
+                                <i class="fa fa-trash mr-1"></i> Delete Selected
+                            </button>
+                            <span v-if="selectedUsers.length > 0" class="ml-2"> 
+                                Selected <span class="text-danger">{{ selectedUsers.length }}</span> users
+                            </span>
+                        </div>
                         <div>
                             <input v-model="searchQuery" type="text" class="form-control" placeholder="Search..." />
                         </div>
                     </div>
                     <table class="table table-bordered">
                         <thead>
-                            <tr>
+                            <tr class="text-center">
+                                <th><input type="checkbox" v-model="selectAll" @change="selectAllUsers" /></th>
                                 <th style="width: 10px">#</th>
                                 <th>Name</th>
                                 <th>Email</th>
@@ -176,6 +230,8 @@
                                 :index=index
                                 @edit-user="editUser"
                                 @user-deleted="userDeleted"
+                                @toggle-selection="toggleSelection"
+                                :select-all="selectAll"
                             />
                         </tbody>
                         <tbody v-else>
