@@ -119,4 +119,40 @@ class UserController extends Controller
 
         return response()->json($response, 200);
     }
+
+    public function changeRole(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'role' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $response = [
+                    'success' => false,
+                    'message' => $validator->errors()
+                ];
+                return response()->json($response, 400);
+            }
+
+            $user = User::find($id);
+
+            $user->update([
+                'role' => $request->role,
+            ]);
+
+            $response = [
+                'success' => true,
+                'data' => $user,
+                'message' => 'Update data Role User successfully'
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
 }
