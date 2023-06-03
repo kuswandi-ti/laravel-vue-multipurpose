@@ -1,13 +1,16 @@
 <script setup>
-    import { ref, onMounted, reactive } from 'vue';
+    import { ref, onMounted, reactive, watch } from 'vue';
     import { Form, Field } from 'vee-validate';
     import * as yup from 'yup';
+    import { debounce } from 'lodash';
+
     import UserListItem from './UserListItem.vue';
 
     const users = ref([])
     const editing = ref(false)
     const formValues = ref()
     const form = ref(null)
+    const searchQuery = ref(null)
 
     const createUserSchema = yup.object({
         name: yup.string().required(),
@@ -22,12 +25,12 @@
     
     const getUsers = async () => {
         await axios.get('/api/users')
-            .then((response) => {
-                users.value = response.data.data
-            })
-            .catch((error) => {
-                errors.value = error.response.data;
-            });
+        .then((response) => {
+            users.value = response.data.data
+        })
+        .catch((error) => {
+            errors.value = error.response.data;
+        });
     }
 
     const handleSubmit = (values, actions) => {
@@ -100,6 +103,24 @@
         users.value = users.value.filter(user => user.id !== userId)
     }
 
+    const search = async () => {
+        await axios.get('/api/users/search', {
+            params: {
+                query: searchQuery.value
+            }
+        })
+        .then((response) => {
+            users.value = response.data.data
+        })
+        .catch((error) => {
+            errors.value = error.response.data;
+        });
+    }
+
+    watch(searchQuery, debounce(() => {
+        search()
+    }, 300))
+    
     onMounted(() => {
         getUsers();
     })
@@ -123,12 +144,17 @@
     </div>
 
     <div class="content">
-        <div class="container-fluid">
-            <div class="card">
+        <div class="container-fluid">            
+            <div class="card">                
                 <div class="card-body">
-                    <button @click="addUser" type="button" class="btn btn-primary mb-2">
-                        Add New User
-                    </button>
+                    <div class="d-flex justify-content-between">
+                        <button @click="addUser" type="button" class="btn btn-primary mb-2">
+                            Add New User
+                        </button>
+                        <div>
+                            <input v-model="searchQuery" type="text" class="form-control" placeholder="Search..." />
+                        </div>
+                    </div>
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -140,7 +166,7 @@
                                 <th>Options</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody v-if="users.length > 0">
                             <UserListItem v-for="(user, index) in users" 
                                 :key="user.id" 
                                 :user=user
@@ -148,6 +174,13 @@
                                 @edit-user="editUser"
                                 @user-deleted="userDeleted"
                             />
+                        </tbody>
+                        <tbody v-else>
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    No results found...
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
