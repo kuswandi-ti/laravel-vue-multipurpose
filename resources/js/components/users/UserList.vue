@@ -2,27 +2,12 @@
     import { ref, onMounted, reactive } from 'vue';
     import { Form, Field } from 'vee-validate';
     import * as yup from 'yup';
-    import { formatDate } from '../../helper.js'
+    import UserListItem from './UserListItem.vue';
 
     const users = ref([])
     const editing = ref(false)
     const formValues = ref()
     const form = ref(null)
-    const userIdBeingDelete = ref(null)
-
-    const getUsers = async () => {
-        await axios.get('/api/users')
-            .then((response) => {
-                users.value = response.data.data
-                // Toast.fire({
-                //     icon: 'success',
-                //     title: response.data.message
-                // })
-            })
-            .catch((error) => {
-                errors.value = error.response.data;
-            });
-    }
 
     const createUserSchema = yup.object({
         name: yup.string().required(),
@@ -33,10 +18,25 @@
     const editUserSchema = yup.object({
         name: yup.string().required(),
         email: yup.string().email().required(),
-        // password: yup.string().when((password, schema) => {
-        //     return password ? schema.required().min(8) : schema
-        // }),
     })
+    
+    const getUsers = async () => {
+        await axios.get('/api/users')
+            .then((response) => {
+                users.value = response.data.data
+            })
+            .catch((error) => {
+                errors.value = error.response.data;
+            });
+    }
+
+    const handleSubmit = (values, actions) => {
+        if (editing.value) {
+            updateUser(values, actions)
+        } else {
+            createUser(values, actions)
+        }
+    }
 
     const addUser = () => {
         editing.value = false        
@@ -53,6 +53,7 @@
         await axios.post('/api/users', values)
         .then((response) => {                
             users.value.unshift(response.data.data)
+            getUsers()
             $('#userFormModal').modal('hide')
             resetForm()
             Toast.fire({
@@ -65,9 +66,16 @@
                 setErrors(error.response.data.message)
             }
         })
-        // .finnally(() => {
-        //     form.value.resetForm()
-        // })
+    }
+
+    const editUser = (user) => {
+        editing.value = true
+        $('#userFormModal').modal('show')
+        formValues.value = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        }
     }
 
     const updateUser = async (values, { setErrors }) => {
@@ -86,54 +94,10 @@
                 setErrors(error.response.data.message)
             }
         })
-    }
+    }    
 
-    const handleSubmit = (values, actions) => {
-        if (editing.value) {
-            updateUser(values, actions)
-        } else {
-            createUser(values, actions)
-        }
-    }
-
-    const editUser = (user) => {
-        editing.value = true
-        $('#userFormModal').modal('show')
-        formValues.value = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-        }
-    }
-
-    const confirmUserDelete = (user) => {
-        userIdBeingDelete.value = user.id
-        $('#deleteUserModal').modal('show')
-
-        // Toast.fire({
-        //     title: "Delete this order status?",
-        //     text: "Are you sure? You won't be able to revert this!",
-        //     type: "warning",
-        //     showCancelButton: true,
-        //     confirmButtonColor: "#3085d6",
-        //     confirmButtonText: "Yes, Delete it!"
-        // }).then(function (isConfirm) {
-        //     if(isConfirm.value === true) {
-        //         deleteUser
-        //     }
-        // });
-    }
-
-    const deleteUser = () => {
-        axios.delete('/api/users/' + userIdBeingDelete.value)
-        .then((response) => {
-            users.value = users.value.filter(user => user.id !== userIdBeingDelete.value)
-            $('#deleteUserModal').modal('hide')
-            Toast.fire({
-                icon: 'success',
-                title: response.data.message
-            })
-        })
+    const userDeleted = (userId) => {
+        users.value = users.value.filter(user => user.id !== userId)
     }
 
     onMounted(() => {
@@ -177,17 +141,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(user, index) in users" :key="user.id">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ user.name }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>{{ formatDate(user.created_at) }}</td>
-                                <td>{{ user.role }}</td>
-                                <td>
-                                    <router-link to="#" @click.prevent="editUser(user)"><i class="fa fa-edit"></i></router-link>&nbsp;
-                                    <router-link to="#" @click.prevent="confirmUserDelete(user)"><i class="fa fa-trash text-danger"></i></router-link>
-                                </td>
-                            </tr>
+                            <UserListItem v-for="(user, index) in users" 
+                                :key="user.id" 
+                                :user=user
+                                :index=index
+                                @edit-user="editUser"
+                                @user-deleted="userDeleted"
+                            />
                         </tbody>
                     </table>
                 </div>
@@ -230,28 +190,6 @@
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="deleteUserModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <span>Delete User</span>                        
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h5>Are you sure you want to delete this user ?</h5>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                    <button @click.prevent="deleteUser" type="button" class="btn btn-danger">Yes</button>
-                </div>
             </div>
         </div>
     </div>
