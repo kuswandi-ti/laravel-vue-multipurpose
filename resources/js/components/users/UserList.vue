@@ -39,7 +39,7 @@
             errors.value = error.response.data;
             selectedUsers.value = []
             selectAll.value = false
-        });
+        })
     }
 
     const handleSubmit = (values, actions) => {
@@ -166,11 +166,11 @@
         })
         .catch((error) => {
             errors.value = error.response.data;
-        });
+        })
     }
     
     onMounted(() => {
-        getUsers();
+        getUsers()
     })
 </script>
 

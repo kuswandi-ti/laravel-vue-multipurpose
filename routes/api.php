@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\AppointmentController;
+use App\Http\Controllers\API\AppointmentStatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +25,6 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 Route::get('/users/search', [UserController::class, 'search']);
 Route::post('/users/{id}/change-role', [UserController::class, 'changeRole']);
 Route::delete('/users', [UserController::class, 'bulkDelete']);
+
+Route::get('/appointments', [AppointmentController::class, 'index']);
+Route::get('/appointment-status', [AppointmentStatusController::class, 'getStatusWithCount']);

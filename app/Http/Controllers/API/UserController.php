@@ -13,7 +13,8 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::latest()->paginate();
+            $users = User::latest()
+                ->paginate(env('CUSTOM_PAGING'));
 
             $response = [
                 'success' => true,
@@ -160,7 +161,8 @@ class UserController extends Controller
     {
         $searchQuery = request('query');
 
-        $users = User::where('name', 'like', "%{$searchQuery}%")->paginate();
+        $users = User::where('name', 'like', "%{$searchQuery}%")
+            ->paginate(env('CUSTOM_PAGING'));
 
         $response = [
             'success' => true,
