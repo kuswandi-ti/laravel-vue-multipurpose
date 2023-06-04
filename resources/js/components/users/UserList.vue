@@ -16,6 +16,7 @@
     const searchQuery = ref(null)
     const selectedUsers = ref([])
     const selectAll = ref(false)
+    const userIdBeingDeleted = ref(null)
 
     const createUserSchema = yup.object({
         name: yup.string().required(),
@@ -27,6 +28,14 @@
         name: yup.string().required(),
         email: yup.string().email().required(),
     })
+
+    const handleSubmit = (values, actions) => {
+        if (editing.value) {
+            updateUser(values, actions)
+        } else {
+            createUser(values, actions)
+        }
+    }
     
     const getUsers = async (page = 1) => {
         await axios.get(`/api/users?page=${page}`)
@@ -40,15 +49,7 @@
             selectedUsers.value = []
             selectAll.value = false
         })
-    }
-
-    const handleSubmit = (values, actions) => {
-        if (editing.value) {
-            updateUser(values, actions)
-        } else {
-            createUser(values, actions)
-        }
-    }
+    }    
 
     const addUser = () => {
         editing.value = false        
@@ -106,10 +107,6 @@
                 setErrors(error.response.data.message)
             }
         })
-    }    
-
-    const userDeleted = (userId) => {
-        users.value = users.value.filter(user => user.id !== userId)
     }
 
     const search = async () => {
@@ -146,6 +143,27 @@
             selectedUsers.value = []
         }
         console.log(selectedUsers.value)
+    }
+
+    // const userDeleted = (userId) => {
+    //     users.value = users.value.filter(user => user.id !== userId)
+    // }
+
+    const confirmUserDeletion = (id) => {
+        userIdBeingDeleted.value = id
+        $('#deleteUserModal').modal('show')
+    }
+
+    const deleteUser = () => {
+        axios.delete('/api/users/' + userIdBeingDeleted.value)
+        .then((response) => {
+            $('#deleteUserModal').modal('hide')
+            users.value.data = users.value.data.filter(user => user.id !== userIdBeingDeleted.value)
+            Toast.fire({
+                icon: 'success',
+                title: response.data.message
+            })
+        })
     }
 
     const bulkDelete = async () => {
@@ -229,7 +247,7 @@
                                 :user=user
                                 :index=index
                                 @edit-user="editUser"
-                                @user-deleted="userDeleted"
+                                @confirm-user-deletion="confirmUserDeletion"
                                 @toggle-selection="toggleSelection"
                                 :select-all="selectAll"
                             />
@@ -286,6 +304,28 @@
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteUserModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <span>Delete User</span>                        
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>Are you sure you want to delete this user ?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <button @click.prevent="deleteUser" type="button" class="btn btn-danger">Yes</button>
+                </div>
             </div>
         </div>
     </div>
