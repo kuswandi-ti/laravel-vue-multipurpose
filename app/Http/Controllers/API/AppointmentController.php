@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class AppointmentController extends Controller
 {
@@ -14,6 +15,7 @@ class AppointmentController extends Controller
     {
         try {
             $appointments = Appointment::query()
+                ->orderBy('id', 'desc')
                 ->with('client:id,first_name,last_name')
                 ->when(request('status'), function ($query) {
                     return $query->where('status', AppointmentStatus::from(request('status')));
@@ -35,6 +37,51 @@ class AppointmentController extends Controller
                 'success' => true,
                 'data' => $appointments,
                 'message' => 'Get data Appointments successfully'
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'title' => 'required',
+                'client_id' => 'required',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'description' => 'required',
+            ], [
+                'client_id.required' => 'The client name field is required.',
+            ]);
+
+            if ($validator->fails()) {
+                $response = [
+                    'success' => false,
+                    'message' => $validator->errors()
+                ];
+                return response()->json($response, 400);
+            }
+
+            $user = Appointment::create([
+                'title' => $request->title,
+                'client_id' => $request->client_id,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'description' => $request->description,
+                'status' => AppointmentStatus::SCHEDULED,
+            ]);
+
+            $response = [
+                'success' => true,
+                'data' => $user,
+                'message' => 'Insert data Appointment successfully'
             ];
 
             return response()->json($response, 200);

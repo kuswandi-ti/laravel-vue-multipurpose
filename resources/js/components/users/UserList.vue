@@ -145,10 +145,6 @@
         console.log(selectedUsers.value)
     }
 
-    // const userDeleted = (userId) => {
-    //     users.value = users.value.filter(user => user.id !== userId)
-    // }
-
     const confirmUserDeletion = (id) => {
         userIdBeingDeleted.value = id
         $('#deleteUserModal').modal('show')
