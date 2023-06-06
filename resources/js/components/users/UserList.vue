@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted, reactive, watch } from 'vue';
+    import { ref, onMounted, watch } from 'vue';
     import { Form, Field } from 'vee-validate';
     import * as yup from 'yup';
     import { debounce } from 'lodash';
@@ -38,14 +38,17 @@
     }
     
     const getUsers = async (page = 1) => {
-        await axios.get(`/api/users?page=${page}`)
+        await axios.get(`/api/users?page=${page}`, {
+            params: {
+                query: searchQuery.value
+            }
+        })
         .then((response) => {
             users.value = response.data.data
             selectedUsers.value = []
             selectAll.value = false
         })
         .catch((error) => {
-            errors.value = error.response.data;
             selectedUsers.value = []
             selectAll.value = false
         })
@@ -64,9 +67,8 @@
 
     const createUser = async (values, { resetForm, setErrors }) => {
         await axios.post('/api/users', values)
-        .then((response) => {                
+        .then((response) => {
             users.value.data.unshift(response.data.data)
-            getUsers()
             $('#userFormModal').modal('hide')
             resetForm()
             Toast.fire({
@@ -94,37 +96,19 @@
     const updateUser = async (values, { setErrors }) => {
         await axios.post('/api/users/' + formValues.value.id, values)
         .then((response) => {
-            const index = users.value.findIndex(user => user.id === response.data.data.id)
-            users.value[index] = response.data.data
+            // const index = users.value.findIndex(user => user.id === response.data.data.id)
+            // users.value[index] = response.data.data
+            getUsers()
             $('#userFormModal').modal('hide')
             Toast.fire({
                 icon: 'success',
                 title: response.data.message
             })
         })
-        .catch((error) => {
-            if (error.response.data.message) {
-                setErrors(error.response.data.message)
-            }
-        })
-    }
-
-    const search = async () => {
-        await axios.get('/api/users/search', {
-            params: {
-                query: searchQuery.value
-            }
-        })
-        .then((response) => {
-            users.value = response.data.data
-        })
-        .catch((error) => {
-            errors.value = error.response.data;
-        });
     }
 
     watch(searchQuery, debounce(() => {
-        search()
+        getUsers()
     }, 300))
 
     const toggleSelection = (user) => {
@@ -177,9 +161,6 @@
                 icon: 'success',
                 title: response.data.message
             })
-        })
-        .catch((error) => {
-            errors.value = error.response.data;
         })
     }
     

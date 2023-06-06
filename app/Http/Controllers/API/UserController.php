@@ -13,7 +13,12 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::latest()
+            $users = User::query()
+                ->when(request('query'), function ($query, $searchQuery) {
+                    $query->where('name', 'like', "%{$searchQuery}%");
+                })
+                ->orderBy('id', 'desc')
+                ->latest()
                 ->paginate(env('CUSTOM_PAGING'));
 
             $response = [
@@ -52,6 +57,7 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
+                'role' => RoleType::USER->value,
             ]);
 
             $response = [
@@ -153,29 +159,6 @@ class UserController extends Controller
                 'success' => true,
                 'data' => $user,
                 'message' => 'Update data Role User successfully'
-            ];
-
-            return response()->json($response, 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => $th->getMessage()
-            ], 500);
-        }
-    }
-
-    public function search()
-    {
-        try {
-            $searchQuery = request('query');
-
-            $users = User::where('name', 'like', "%{$searchQuery}%")
-                ->paginate(env('CUSTOM_PAGING'));
-
-            $response = [
-                'success' => true,
-                'data' => $users,
-                'message' => 'Search data User successfully'
             ];
 
             return response()->json($response, 200);

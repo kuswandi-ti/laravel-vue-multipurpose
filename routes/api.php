@@ -23,7 +23,6 @@ Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
 Route::post('/users/{id}', [UserController::class, 'update']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
-Route::get('/users/search', [UserController::class, 'search']);
 Route::post('/users/{id}/change-role', [UserController::class, 'changeRole']);
 Route::delete('/users', [UserController::class, 'bulkDelete']);
 
