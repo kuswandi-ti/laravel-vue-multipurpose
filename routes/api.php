@@ -28,7 +28,9 @@ Route::post('/users/{id}/change-role', [UserController::class, 'changeRole']);
 Route::delete('/users', [UserController::class, 'bulkDelete']);
 
 Route::get('/clients', [ClientController::class, 'index']);
-
 Route::get('/appointments', [AppointmentController::class, 'index']);
 Route::post('/appointments', [AppointmentController::class, 'store']);
+Route::get('/appointments/{id}', [AppointmentController::class, 'edit']);
+Route::post('/appointments/{id}', [AppointmentController::class, 'update']);
+Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
 Route::get('/appointment-status', [AppointmentStatusController::class, 'getStatusWithCount']);

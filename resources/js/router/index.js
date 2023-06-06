@@ -24,6 +24,11 @@ export const routes = [
         component: AppointmentForm,
     },
     {        
+        path: '/admin/appointments/:id',
+        name: 'admin.appointments.edit',
+        component: AppointmentForm,
+    },
+    {        
         path: '/admin/users',
         name: 'admin.users',
         component: UserList,

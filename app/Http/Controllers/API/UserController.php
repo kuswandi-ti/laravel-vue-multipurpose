@@ -109,16 +109,23 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        $user = User::find($id);
+        try {
+            $user = User::find($id);
 
-        $user->delete();
+            $user->delete();
 
-        $response = [
-            'success' => true,
-            'message' => 'Delete data User successfully'
-        ];
+            $response = [
+                'success' => true,
+                'message' => 'Delete data User successfully'
+            ];
 
-        return response()->json($response, 200);
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function changeRole(Request $request, $id)
@@ -159,31 +166,45 @@ class UserController extends Controller
 
     public function search()
     {
-        $searchQuery = request('query');
+        try {
+            $searchQuery = request('query');
 
-        $users = User::where('name', 'like', "%{$searchQuery}%")
-            ->paginate(env('CUSTOM_PAGING'));
+            $users = User::where('name', 'like', "%{$searchQuery}%")
+                ->paginate(env('CUSTOM_PAGING'));
 
-        $response = [
-            'success' => true,
-            'data' => $users,
-            'message' => 'Search data User successfully'
-        ];
+            $response = [
+                'success' => true,
+                'data' => $users,
+                'message' => 'Search data User successfully'
+            ];
 
-        return response()->json($response, 200);
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function bulkDelete(Request $request)
     {
-        $user = User::whereIn('id', $request->ids);
+        try {
+            $user = User::whereIn('id', $request->ids);
 
-        $user->delete();
+            $user->delete();
 
-        $response = [
-            'success' => true,
-            'message' => 'Bulk Delete data User successfully'
-        ];
+            $response = [
+                'success' => true,
+                'message' => 'Bulk Delete data User successfully'
+            ];
 
-        return response()->json($response, 200);
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }

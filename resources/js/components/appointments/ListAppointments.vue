@@ -1,5 +1,6 @@
 <script setup>
     import { ref, onMounted, computed } from 'vue';
+    import Swal from 'sweetalert2';
 
     const appointments = ref([])
     const appointmentStatus = ref([])
@@ -36,6 +37,33 @@
     const appointmentsCount = computed(() => {
         return appointmentStatus.value.map(status => status.count).reduce((acc, value) => acc + value, 0)
     })
+
+    const deleteAppointment = (id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`/api/appointments/${id}`)
+                .then((response) => {
+                    appointments.value.data = appointments.value.data.filter(appointment => appointment.id !== id)
+                    Swal.fire(
+                        'Deleted!',
+                        response.data.message,
+                        'success'
+                    )
+                })
+                .catch((error) => {
+                    errors.value = error.response.data;
+                })                
+            }
+        })
+    }
 
     onMounted(() => {
         getAppointments()
@@ -96,9 +124,10 @@
                                 <thead>
                                     <tr class="text-center">
                                         <th scope="col">#</th>
+                                        <th scope="col">Title</th>
                                         <th scope="col">Client Name</th>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Time</th>
+                                        <th scope="col">Start Time</th>
+                                        <th scope="col">End Time</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Options</th>
                                     </tr>
@@ -106,6 +135,7 @@
                                 <tbody>
                                     <tr v-for="(appointment, index) in appointments.data" :key="appointment.id">
                                         <td class="text-center">{{ index + 1 }}</td>
+                                        <td>{{ appointment.title }}</td>
                                         <td>{{ appointment.client.first_name }} {{ appointment.client.last_name }}</td>
                                         <td class="text-center">{{ appointment.start_time }}</td>
                                         <td class="text-center">{{ appointment.end_time }}</td>
@@ -113,10 +143,10 @@
                                             <span class="badge" :class="`badge-${appointment.status.color}`">{{ appointment.status.name }}</span>
                                         </td>
                                         <td class="text-center">
-                                            <a href="">
+                                            <router-link :to="`/admin/appointments/${appointment.id}`">
                                                 <i class="fa fa-edit mr-2"></i>
-                                            </a>
-                                            <a href="">
+                                            </router-link>
+                                            <a href="#" @click.prevent="deleteAppointment(appointment.id)">
                                                 <i class="fa fa-trash text-danger"></i>
                                             </a>
                                         </td>

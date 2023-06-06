@@ -24,6 +24,7 @@ class AppointmentController extends Controller
                 ->paginate(env('CUSTOM_PAGING'))
                 ->through(fn ($appointment) => [
                     'id' => $appointment->id,
+                    'title' => $appointment->title,
                     'start_time' => Carbon::parse($appointment->start_time)->format('Y-m-d h:i A'),
                     'end_time' => Carbon::parse($appointment->end_time)->format('Y-m-d h:i A'),
                     'status' => [
@@ -69,7 +70,7 @@ class AppointmentController extends Controller
                 return response()->json($response, 400);
             }
 
-            $user = Appointment::create([
+            $appointment = Appointment::create([
                 'title' => $request->title,
                 'client_id' => $request->client_id,
                 'start_time' => $request->start_time,
@@ -80,8 +81,96 @@ class AppointmentController extends Controller
 
             $response = [
                 'success' => true,
-                'data' => $user,
+                'data' => $appointment,
                 'message' => 'Insert data Appointment successfully'
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function edit($id)
+    {
+        try {
+            $appointment = Appointment::find($id);
+
+            $response = [
+                'success' => true,
+                'data' => $appointment,
+                'message' => 'Edit data Appointment successfully'
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'title' => 'required',
+                'client_id' => 'required',
+                'start_time' => 'required',
+                'end_time' => 'required',
+                'description' => 'required',
+            ], [
+                'client_id.required' => 'The client name field is required.',
+            ]);
+
+            if ($validator->fails()) {
+                $response = [
+                    'success' => false,
+                    'message' => $validator->errors()
+                ];
+                return response()->json($response, 400);
+            }
+
+            $appointment = Appointment::find($id);
+
+            $appointment->update([
+                'title' => $request->title,
+                'client_id' => $request->client_id,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'description' => $request->description,
+                'status' => AppointmentStatus::SCHEDULED,
+            ]);
+
+            $response = [
+                'success' => true,
+                'data' => $appointment,
+                'message' => 'Update data Appointment successfully'
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $appointment = Appointment::find($id);
+
+            $appointment->delete();
+
+            $response = [
+                'success' => true,
+                'message' => 'Delete data Appointments successfully'
             ];
 
             return response()->json($response, 200);
