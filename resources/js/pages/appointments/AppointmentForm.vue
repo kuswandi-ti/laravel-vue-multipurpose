@@ -1,7 +1,7 @@
 <script setup>
     import { reactive, onMounted, ref } from 'vue';
     import { useRouter, useRoute } from 'vue-router';
-    import { Form, Field } from 'vee-validate';
+    import { Form } from 'vee-validate';
     import flatpickr from "flatpickr";
     import 'flatpickr/dist/themes/light.css';
 
@@ -18,10 +18,13 @@
     const clients = ref()
     const editMode = ref(false)
 
-    const getClient = async () => {
+    const getClient = async (actions) => {
         await axios.get('/api/clients')
         .then((response) => {        
             clients.value = response.data.data
+        })
+        .catch((error) => {
+            actions.setErrors(error.response.data.message)
         })
     }
 
@@ -33,7 +36,7 @@
         }
     }
 
-    const createAppointment = async (values, { setErrors }) => {
+    const createAppointment = async (values, actions) => {
         await axios.post('/api/appointments', form)
         .then((response) => {                
             router.push('/admin/appointments')
@@ -43,13 +46,11 @@
             })
         })
         .catch((error) => {
-            if (error.response.data.message) {
-                setErrors(error.response.data.message)
-            }
+            actions.setErrors(error.response.data.message)
         })
     }
 
-    const updateAppointment = async (values, { setErrors }) => {
+    const updateAppointment = async (values, actions) => {
         await axios.post(`/api/appointments/${route.params.id}`, form)
         .then((response) => {                
             router.push('/admin/appointments')
@@ -59,13 +60,11 @@
             })
         })
         .catch((error) => {
-            if (error.response.data.message) {
-                setErrors(error.response.data.message)
-            }
+            actions.setErrors(error.response.data.message)
         })
     }
 
-    const getAppointment = async () => {
+    const getAppointment = async (actions) => {
         await axios.get(`/api/appointments/${route.params.id}`)
         .then((response) => {       
             form.title = response.data.data.title
@@ -75,9 +74,7 @@
             form.description = response.data.data.description
         })
         .catch((error) => {
-            if (error.response.data.message) {
-                setErrors(error.response.data.message)
-            }
+            actions.setErrors(error.response.data.message)
         })
     }
 

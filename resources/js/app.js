@@ -3,6 +3,8 @@ import './bootstrap';
 import 'admin-lte/plugins/bootstrap/js/bootstrap.bundle.min.js';
 import 'admin-lte/dist/js/adminlte.min.js';
 
+import Login from './pages/auth/Login.vue';
+
 import Swal from 'sweetalert2';
 window.Swal = Swal;
 
@@ -25,4 +27,5 @@ import router from './router';
 
 const app = createApp({})
 app.use(router)
+app.component('Login', Login)
 app.mount("#app")

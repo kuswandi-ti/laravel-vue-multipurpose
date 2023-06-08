@@ -9,10 +9,6 @@ class ApplicationController extends Controller
 {
     public function __invoke()
     {
-        if (!Auth::check()) {
-            return view('admin.layouts.app');
-        } else {
-            return view('auth.login');
-        }
+        return view('admin.layouts.app');
     }
 }

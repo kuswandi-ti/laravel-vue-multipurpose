@@ -1,13 +1,20 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Dashboard from '../components/Dashboard.vue';
-import ListAppointments from '../components/appointments/ListAppointments.vue';
-import AppointmentForm from '../components/appointments/AppointmentForm.vue';
-import UserList from '../components/users/UserList.vue';
-import UpdateSetting from '../components/settings/UpdateSetting.vue';
-import UpdateProfile from '../components/profile/UpdateProfile.vue';
+
+import Login from '../pages/auth/Login.vue';
+import ListAppointments from '../pages/appointments/ListAppointments.vue';
+import AppointmentForm from '../pages/appointments/AppointmentForm.vue';
+import UserList from '../pages/users/UserList.vue';
+import UpdateSetting from '../pages/settings/UpdateSetting.vue';
+import UpdateProfile from '../pages/profile/UpdateProfile.vue';
 
 export const routes = [
+    {        
+        path: '/login',
+        name: 'admin.login',
+        component: Login,
+    },
     {        
         path: '/admin/dashboard',
         name: 'admin.dashboard',

@@ -93,7 +93,7 @@
         }
     }
 
-    const updateUser = async (values, { setErrors }) => {
+    const updateUser = async (values, actions) => {
         await axios.post('/api/users/' + formValues.value.id, values)
         .then((response) => {
             // const index = users.value.findIndex(user => user.id === response.data.data.id)
@@ -103,7 +103,10 @@
             Toast.fire({
                 icon: 'success',
                 title: response.data.message
-            })
+            })            
+        })
+        .catch((error) => {
+            actions.setErrors(error.response.data.message)
         })
     }
 
@@ -134,7 +137,7 @@
         $('#deleteUserModal').modal('show')
     }
 
-    const deleteUser = () => {
+    const deleteUser = (actions) => {
         axios.delete('/api/users/' + userIdBeingDeleted.value)
         .then((response) => {
             $('#deleteUserModal').modal('hide')
@@ -144,9 +147,12 @@
                 title: response.data.message
             })
         })
+        .catch((error) => {
+            actions.setErrors(error.response.data.message)
+        })
     }
 
-    const bulkDelete = async () => {
+    const bulkDelete = async (actions) => {
         await axios.delete('/api/users', {
             data: {
                 ids: selectedUsers.value
@@ -161,6 +167,9 @@
                 icon: 'success',
                 title: response.data.message
             })
+        })
+        .catch((error) => {
+            actions.setErrors(error.response.data.message)
         })
     }
     

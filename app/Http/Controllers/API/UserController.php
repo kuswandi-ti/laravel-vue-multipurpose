@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\RoleType;
 use App\Models\User;
+use App\Enums\RoleType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -182,6 +185,72 @@ class UserController extends Controller
                 'message' => 'Bulk Delete data User successfully'
             ];
 
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required',
+                'password' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $response = [
+                    'success' => false,
+                    'message' => $validator->errors()
+                ];
+                return response()->json($response, 400);
+            }
+
+            $credentials = $request->only('email', 'password');
+            if (Auth::attempt($credentials)) {
+                // $user->tokens()->delete();
+            }
+
+            $user = User::where('email',  $request->email)->first();
+            if ($user && Hash::check($request->password, $user->password)) {
+                $user->tokens()->delete();
+
+                $response = [
+                    'success' => true,
+                    'data' => [
+                        'email' => $user->email,
+                        'token' => $user->createToken('auth_token')->plainTextToken,
+                    ],
+                    'message' => 'User login successfully'
+                ];
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'These credentials do not match our records !!!'
+                ];
+            }
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function logout()
+    {
+        try {
+            Session::flush();
+            $response = [
+                'success' => true,
+                'message' => 'User logout successfully'
+            ];
             return response()->json($response, 200);
         } catch (\Throwable $th) {
             return response()->json([

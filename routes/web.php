@@ -14,8 +14,8 @@ use App\Http\Controllers\ApplicationController;
 |
 */
 
-Route::get('csrf', function () {
-    return csrf_token();
+Route::get('/', function () {
+    return view('welcome');
 });
 
-Route::get('{view}', ApplicationController::class)->where('view', '(.*)');
+Route::get('{view}', ApplicationController::class)->where('view', '(.*)')->middleware('auth:sanctum');
