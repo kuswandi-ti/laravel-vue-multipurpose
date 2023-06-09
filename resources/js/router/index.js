@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from '../components/Dashboard.vue';
 
 import Login from '../pages/auth/Login.vue';
+import Register from '../pages/auth/Register.vue';
 import ListAppointments from '../pages/appointments/ListAppointments.vue';
 import AppointmentForm from '../pages/appointments/AppointmentForm.vue';
 import UserList from '../pages/users/UserList.vue';
@@ -14,6 +15,11 @@ export const routes = [
         path: '/login',
         name: 'admin.login',
         component: Login,
+    },
+    {        
+        path: '/register',
+        name: 'admin.register',
+        component: Register,
     },
     {        
         path: '/admin/dashboard',

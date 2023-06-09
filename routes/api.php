@@ -20,8 +20,8 @@ use App\Http\Controllers\API\AppointmentStatusController;
 |
 */
 
+Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index']);
@@ -41,4 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointment-status', [AppointmentStatusController::class, 'getStatusWithCount']);
 
     Route::get('/status/appointments', [DashboardStatusController::class, 'appointments']);
+
+    Route::post('/logout', [UserController::class, 'logout']);
 });

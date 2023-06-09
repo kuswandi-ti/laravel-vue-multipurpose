@@ -194,6 +194,54 @@ class UserController extends Controller
         }
     }
 
+    public function register(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|sometimes|min:8',
+                'c_password' => 'required|same:password',
+            ], [
+                'c_password.required' => 'Confirmation password is a required field',
+                'c_password.same' => 'Password and Confirmation Password are not the same',
+            ]);
+
+            if ($validator->fails()) {
+                $response = [
+                    'success' => false,
+                    'message' => $validator->errors()
+                ];
+                return response()->json($response, 400);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'role' => RoleType::USER->value,
+            ]);
+            $user['token'] = $user->createToken('auth_token')->plainTextToken;
+
+            // After register, try to login
+            $credentials = $request->only('email', 'password');
+            if (Auth::attempt($credentials)) {
+                $response = [
+                    'success' => true,
+                    'data' => $user,
+                    'message' => 'Register User successfully'
+                ];
+            }
+
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function login(Request $request)
     {
         try {
@@ -212,13 +260,8 @@ class UserController extends Controller
 
             $credentials = $request->only('email', 'password');
             if (Auth::attempt($credentials)) {
-                // $user->tokens()->delete();
-            }
-
-            $user = User::where('email',  $request->email)->first();
-            if ($user && Hash::check($request->password, $user->password)) {
+                $user = User::where('email',  $request->email)->first();
                 $user->tokens()->delete();
-
                 $response = [
                     'success' => true,
                     'data' => [

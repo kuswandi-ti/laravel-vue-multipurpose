@@ -6,21 +6,23 @@
     const errorMessage = ref('')
     const loading = ref(false)
     const createSchema = yup.object({
-        email: yup.string().email().required(),
+        name: yup.string().required().max(255),
+        email: yup.string().required().email(),
         password: yup.string().required().min(8),
+        c_password: yup.string().required('confirmation password is a required field').min(8).oneOf([yup.ref('password'), null], 'Password and Confirmation Password are not the same')
     })
 
     const handleSubmit = async (values, actions) => {
         loading.value = true
         errorMessage.value = ''
-        await axios.post('/api/login', values)
+        await axios.post('/api/register', values)
         .then((response) => {
-            if (response.data.success) {
+            if (response.data.success) { 
+                window.location.href="/admin/dashboard"
                 Toast.fire({
                     icon: 'success',
                     title: response.data.message
                 })
-                window.location.href="/admin/dashboard"                
             } else {
                 errorMessage.value = response.data.message
             }
@@ -35,19 +37,29 @@
 </script>
 
 <template>
-    <div class="login-box">
+    <div class="register-box">
         <div class="register-logo">
             <span>Multipurpose Module Laravel Vue</span>
         </div>
+
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <span class="h1">Login</span>
+                <span class="h1">Register</span>
             </div>
             <div class="card-body">
                 <div v-if="errorMessage" class="alert alert-danger" role="alert">
                     {{ errorMessage }}
                 </div>
                 <Form @submit="handleSubmit" :validation-schema="createSchema" v-slot="{ errors }">
+                    <div class="input-group mb-3">
+                        <Field name="name" type="text" class="form-control" placeholder="Name" :class="{ 'is-invalid': errors.name}" />
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                        <span id="errorName" class="invalid-feedback">{{ errors.name }}</span>
+                    </div>
                     <div class="input-group mb-3">
                         <Field name="email" type="email" class="form-control" placeholder="Email" :class="{ 'is-invalid': errors.email}" />
                         <div class="input-group-append">
@@ -66,23 +78,29 @@
                         </div>
                         <span id="errorPassword" class="invalid-feedback">{{ errors.password }}</span>
                     </div>
+                    <div class="input-group mb-3">
+                        <Field name="c_password" type="password" class="form-control" placeholder="Retype password" :class="{ 'is-invalid': errors.c_password}" />
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                        <span id="errorCPassword" class="invalid-feedback">{{ errors.c_password }}</span>
+                    </div>
                     <div class="row">
                         <div class="col-8">
-                            <p class="mb-0">
-                                <a href="/register" class="text-center">Register a new user</a>
-                            </p>
+                            <a href="/login" class="text-center">I already have a user ?</a>
                         </div>
-
                         <div class="col-4">
                             <button type="submit" class="btn btn-primary btn-block" :disabled="loading">
                                 <div v-if="loading" class="spinner-border spinner-border-sm" role="status">
                                     <span class="sr-only">Loading...</span>
                                 </div>
-                                <span v-else> Login</span>
+                                <span v-else> Register</span>
                             </button>
                         </div>
                     </div>
-                </Form>
+                </form>
             </div>
         </div>
     </div>
