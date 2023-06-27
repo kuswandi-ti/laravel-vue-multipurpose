@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\ClientController;
+use App\Http\Controllers\API\SettingController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\DashboardStatusController;
 use App\Http\Controllers\API\AppointmentStatusController;
@@ -42,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/status/appointments', [DashboardStatusController::class, 'appointments']);
     Route::get('/status/users', [DashboardStatusController::class, 'users']);
+
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::post('/settings', [SettingController::class, 'update']);
 
     Route::post('/logout', [UserController::class, 'logout']);
 });

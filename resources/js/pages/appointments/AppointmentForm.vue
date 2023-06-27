@@ -20,7 +20,7 @@
 
     const getClient = async (actions) => {
         await axios.get('/api/clients')
-        .then((response) => {        
+        .then((response) => {
             clients.value = response.data.data
         })
         .catch((error) => {
@@ -38,7 +38,7 @@
 
     const createAppointment = async (values, actions) => {
         await axios.post('/api/appointments', form)
-        .then((response) => {                
+        .then((response) => {
             router.push('/admin/appointments')
             Toast.fire({
                 icon: 'success',
@@ -52,7 +52,7 @@
 
     const updateAppointment = async (values, actions) => {
         await axios.post(`/api/appointments/${route.params.id}`, form)
-        .then((response) => {                
+        .then((response) => {
             router.push('/admin/appointments')
             Toast.fire({
                 icon: 'success',
@@ -66,7 +66,7 @@
 
     const getAppointment = async (actions) => {
         await axios.get(`/api/appointments/${route.params.id}`)
-        .then((response) => {       
+        .then((response) => {
             form.title = response.data.data.title
             form.client_id = response.data.data.client_id
             form.start_time = response.data.data.start_time
@@ -98,11 +98,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">
-                        <span v-if="editMode">Edit</span>
-                        <span v-else>Create</span>
-                        Appointment
-                    </h1>
+                    <h1 class="m-0">Appointments</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -126,7 +122,14 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span v-if="editMode">Edit</span>
+                                <span v-else>Create</span>
+                                Appointment
+                            </h3>
+                        </div>
                         <div class="card-body">
                             <Form @submit="handleSubmit" v-slot:default="{ errors }">
                                 <div class="row">
