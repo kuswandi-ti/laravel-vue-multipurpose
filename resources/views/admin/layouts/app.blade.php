@@ -170,7 +170,7 @@
                             class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block">{{ auth()->user()->name }}</a>
                     </div>
                 </div>
 
@@ -197,7 +197,7 @@
                                 <p> Users</p>
                             </router-link>
                         </li>
-                        {{-- <li class="nav-item">
+                        <li class="nav-item">
                             <router-link to="/admin/settings" active-class="active" class="nav-link">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p> Settings</p>
@@ -208,7 +208,7 @@
                                 <i class="nav-icon fas fa-user"></i>
                                 <p> Profile</p>
                             </router-link>
-                        </li> --}}
+                        </li>
                         <li class="nav-item">
                             <form method="POST" action="/logout" class="nav-link">
                                 @csrf

@@ -10,12 +10,12 @@
         selectedStatus.value = status
         const params = {};
         if (status) {
-           params.status = status 
+           params.status = status
         }
 
         await axios.get('/api/appointments', {
             params: params
-        })        
+        })
         .then((response) => {
             appointments.value = response.data.data
         })
@@ -60,7 +60,7 @@
                 })
                 .catch((error) => {
                     errors.value = error.response.data;
-                })                
+                })
             }
         })
     }
@@ -88,17 +88,16 @@
         </div>
     </div>
 
-
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12">                    
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
                                 <div>
                                     <router-link to="/admin/appointments/create">
-                                        <button class="btn btn-primary"><i class="fa fa-plus-circle mr-1"></i> 
+                                        <button class="btn btn-primary"><i class="fa fa-plus-circle mr-1"></i>
                                             Add New Appointment
                                         </button>
                                     </router-link>
@@ -109,17 +108,18 @@
                                         <span class="badge badge-pill badge-info">{{ appointmentsCount }}</span>
                                     </button>
 
-                                    <button 
-                                        v-for="status in appointmentStatus" 
-                                        @click="getAppointments(status.value)" 
-                                        type="button" 
-                                        class="btn" 
+                                    <button
+                                        v-for="status in appointmentStatus"
+                                        @click="getAppointments(status.value)"
+                                        type="button"
+                                        class="btn"
                                         :class="[selectedStatus === status.value ? 'btn-secondary' : 'btn-default']">
                                         <span class="mr-1">{{ status.name }}</span>
                                         <span class="badge badge-pill" :class="`badge-${status.color}`">{{ status.count }}</span>
                                     </button>
                                 </div>
                             </div>
+
                             <table class="table table-bordered">
                                 <thead>
                                     <tr class="text-center">

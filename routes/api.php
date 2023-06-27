@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointment-status', [AppointmentStatusController::class, 'getStatusWithCount']);
 
     Route::get('/status/appointments', [DashboardStatusController::class, 'appointments']);
+    Route::get('/status/users', [DashboardStatusController::class, 'users']);
 
     Route::post('/logout', [UserController::class, 'logout']);
 });

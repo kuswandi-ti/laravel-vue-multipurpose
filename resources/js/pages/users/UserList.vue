@@ -36,7 +36,7 @@
             createUser(values, actions)
         }
     }
-    
+
     const getUsers = async (page = 1) => {
         await axios.get(`/api/users?page=${page}`, {
             params: {
@@ -52,10 +52,10 @@
             selectedUsers.value = []
             selectAll.value = false
         })
-    }    
+    }
 
     const addUser = () => {
-        editing.value = false        
+        editing.value = false
         $('#userFormModal').modal('show')
         formValues.value = {
             id: '',
@@ -103,7 +103,7 @@
             Toast.fire({
                 icon: 'success',
                 title: response.data.message
-            })            
+            })
         })
         .catch((error) => {
             actions.setErrors(error.response.data.message)
@@ -172,7 +172,7 @@
             actions.setErrors(error.response.data.message)
         })
     }
-    
+
     onMounted(() => {
         getUsers()
     })
@@ -196,8 +196,8 @@
     </div>
 
     <div class="content">
-        <div class="container-fluid">            
-            <div class="card">                
+        <div class="container-fluid">
+            <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -207,7 +207,7 @@
                             <button v-if="selectedUsers.length > 0" @click="bulkDelete" type="button" class="btn btn-danger mb-2 ml-2">
                                 <i class="fa fa-trash mr-1"></i> Delete Selected
                             </button>
-                            <span v-if="selectedUsers.length > 0" class="ml-2"> 
+                            <span v-if="selectedUsers.length > 0" class="ml-2">
                                 Selected <span class="text-danger">{{ selectedUsers.length }}</span> users
                             </span>
                         </div>
@@ -228,8 +228,8 @@
                             </tr>
                         </thead>
                         <tbody v-if="users.data.length > 0">
-                            <UserListItem v-for="(user, index) in users.data" 
-                                :key="user.id" 
+                            <UserListItem v-for="(user, index) in users.data"
+                                :key="user.id"
                                 :user=user
                                 :index=index
                                 @edit-user="editUser"
@@ -240,15 +240,15 @@
                         </tbody>
                         <tbody v-else>
                             <tr>
-                                <td colspan="6" class="text-center">
+                                <td colspan="7" class="text-center">
                                     No results found...
                                 </td>
                             </tr>
                         </tbody>
-                    </table>                    
+                    </table>
                 </div>
             </div>
-            <Bootstrap4Pagination 
+            <Bootstrap4Pagination
                 :data="users"
                 @pagination-change-page="getUsers"
             />
@@ -261,7 +261,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title">
                         <span v-if="editing">Edit Existing User</span>
-                        <span v-else>Add New User</span>                        
+                        <span v-else>Add New User</span>
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -299,7 +299,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <span>Delete User</span>                        
+                        <span>Delete User</span>
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
