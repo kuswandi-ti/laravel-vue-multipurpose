@@ -44,6 +44,10 @@
                 <span class="h1">Login</span>
             </div>
             <div class="card-body">
+                <div class="alert alert-warning">
+                    <h6>Email : <strong>kuswandi.ti@gmail.com</strong></h6>
+                    <h6>Password : <strong>password</strong></h6>
+                </div>
                 <div v-if="errorMessage" class="alert alert-danger" role="alert">
                     {{ errorMessage }}
                 </div>
