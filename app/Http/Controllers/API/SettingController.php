@@ -22,29 +22,27 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        try {
-            $settings = $request->all();
-            foreach ($settings as $key => $value) {
-                Setting::updateOrCreate(
-                    ['key' => $key],
-                    ['value' => $value],
-                );
-            }
+        $settings = request()->validate([
+            'app_name' => ['required', 'string'],
+            'date_format' => ['required', 'string'],
+            'pagination_limit' => ['required', 'int', 'min:1', 'max:100'],
+        ]);
 
-            $response = [
-                'success' => true,
-                'data' => $settings,
-                'message' => 'Update data Setting successfully'
-            ];
-
-            Cache::flush('settings');
-
-            return response()->json($response, 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => $th->getMessage()
-            ], 500);
+        foreach ($settings as $key => $value) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value],
+            );
         }
+
+        $response = [
+            'success' => true,
+            'data' => $settings,
+            'message' => 'Update data Setting successfully'
+        ];
+
+        Cache::flush('settings');
+
+        return response()->json($response, 200);
     }
 }
