@@ -5,12 +5,19 @@ namespace App\Http\Controllers\API;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class SettingController extends Controller
 {
     public function index()
     {
-        return Setting::pluck('value', 'key')->toArray();
+        $settings = Setting::pluck('value', 'key')->toArray();
+
+        if (! $settings) {
+            return config('settings.default');
+        }
+
+        return $settings;
     }
 
     public function update(Request $request)
@@ -18,9 +25,10 @@ class SettingController extends Controller
         try {
             $settings = $request->all();
             foreach ($settings as $key => $value) {
-                Setting::where('key', $key)->update([
-                    'value' => $value
-                ]);
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $value],
+                );
             }
 
             $response = [
@@ -28,6 +36,8 @@ class SettingController extends Controller
                 'data' => $settings,
                 'message' => 'Update data Setting successfully'
             ];
+
+            Cache::flush('settings');
 
             return response()->json($response, 200);
         } catch (\Throwable $th) {

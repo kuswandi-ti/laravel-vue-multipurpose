@@ -22,7 +22,7 @@ class UserController extends Controller
                 })
                 ->orderBy('id', 'desc')
                 ->latest()
-                ->paginate(env('CUSTOM_PAGING'));
+                ->paginate(setting('pagination_limit'));
 
             $response = [
                 'success' => true,

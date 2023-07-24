@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
+
 function appointment_status_to_name($status)
 {
     switch ($status) {
@@ -36,4 +39,16 @@ function appointment_status_to_color($status)
             break;
     }
     return $color;
+}
+
+function setting($key) {
+    $settings = Cache::rememberForever('settings', function () {
+        return Setting::pluck('value', 'key')->all();
+    });
+
+    if (! $settings) {
+        $settings = config('settings.default');
+    }
+
+    return $settings[$key] ?? false;
 }
